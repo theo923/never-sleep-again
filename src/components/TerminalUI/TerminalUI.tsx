@@ -10,7 +10,7 @@ const TerminalUI = (props = {}) => {
   return (
     <div className={styles.size}>
       <Terminal
-        name="React Terminal Usage Example"
+        name="Log"
         colorMode={ColorMode.Light}
         onInput={(terminalInput) =>
           console.log(`New terminal input received: '${terminalInput}'`)
