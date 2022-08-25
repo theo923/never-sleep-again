@@ -1,0 +1,12 @@
+@import "src/scss/variables.scss";
+
+.input {
+  max-width: 700px;
+  margin-top: $mt-large;
+  margin-bottom: $mt-large;
+}
+
+.button {
+  margin-left: $mt-large;
+  margin-right: $mt-large;
+}
