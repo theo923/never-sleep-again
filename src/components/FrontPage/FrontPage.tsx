@@ -7,38 +7,50 @@ import {
   Input,
   Popup,
 } from "semantic-ui-react";
+import { useCountdown } from "src/hooks/countDown";
 import styles from "./FrontPage.module.scss";
+import { getNewTimer } from "src/functions/getNewTimer";
+import { validateLink } from "src/functions/validateLink";
+import {
+  INPUT_PLACEHOLDER,
+  POPUP_TEXT,
+  REMINDER_TEXT,
+} from "src/constants/FrontPageConstants";
 
-const FrontPage = () => {
-  const [link, setLink] = useState<string>("");
+interface Props {
+  link: string;
+  setLink: React.Dispatch<React.SetStateAction<string>>;
+  working: boolean;
+  setWorking: React.Dispatch<React.SetStateAction<boolean>>;
+  timer: number;
+}
+
+const FrontPage: React.FC<Props> = ({ link, setLink, setWorking, timer }) => {
   const [validate, setValidate] = useState<boolean | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [targetDate, setTargetDate] = useState<Date>(new Date());
+  const [minutes, seconds] = useCountdown(targetDate);
+
+  useEffect(() => {
+    setTargetDate(getNewTimer(timer));
+  }, [timer]);
 
   useEffect(() => {
     if (link.length > 0 && validate === false) setValidate(undefined);
   }, [link]);
 
-  const handleClick = () => {
-    var httpProtocol;
-
-    try {
-      httpProtocol = new URL(link).protocol;
-      if (!Boolean(httpProtocol === "http:" || httpProtocol === "https:"))
-        throw "";
-    } catch {
+  const handleClick = async (link: string) => {
+    if (validateLink(link)) {
+      setLoading(true);
+      setWorking(true);
+    } else {
       setValidate(false);
-      return;
     }
-    setLoading(true);
   };
 
   const reset = () => {
-    setLink("");
-    setValidate(false);
-    setLoading(false);
+    window.location.reload();
   };
-
-  console.log("validate", validate);
 
   return (
     <div>
@@ -49,7 +61,7 @@ const FrontPage = () => {
             value={link}
             size="big"
             fluid
-            placeholder="Please insert any link"
+            placeholder={INPUT_PLACEHOLDER}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setLink(e.target.value)
             }
@@ -60,7 +72,7 @@ const FrontPage = () => {
         <Grid.Row>
           <Grid.Column>
             <Popup
-              content="Please insert a valid link"
+              content={POPUP_TEXT}
               on="click"
               disabled={validate || loading || link.length === 0}
               trigger={
@@ -68,7 +80,7 @@ const FrontPage = () => {
                   loading={loading}
                   disabled={validate === false}
                   content="Submit"
-                  onClick={handleClick}
+                  onClick={() => handleClick(link)}
                 />
               }
             />
@@ -78,11 +90,13 @@ const FrontPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      <p className={styles.input}>
-        This app aims to help user keep their hosted api/page receive requests
-        for testing their own api/page's stability. The request time is fixed
-        for every 25 mins.
-      </p>
+      <p className={styles.input}>{REMINDER_TEXT}</p>
+      {(minutes > 0 || seconds > 0) && (
+        <h3>{`Countdown Timer: ${(minutes < 10 ? "0" : "") + minutes} minutes ${
+          (seconds < 10 ? "0" : "") + seconds
+        } seconds before the next call`}</h3>
+      )}
+      <div />
     </div>
   );
 };

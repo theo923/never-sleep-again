@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Terminal, { ColorMode, TerminalOutput } from "react-terminal-ui";
+import { WELCOME_TEXT } from "src/constants/TerminalUIConstants";
 import styles from "./TerminalUI.module.scss";
 
-const TerminalUI = (props = {}) => {
-  const [terminalLineData, setTerminalLineData] = useState([
-    <TerminalOutput>Welcome to the React Terminal UI Demo!</TerminalOutput>,
-  ]);
-  // Terminal has 100% width by default so it should usually be wrapped in a container div
+interface Props {
+  log: string[];
+}
+
+const TerminalUI: React.FC<Props> = ({ log }) => {
   return (
     <div className={styles.size}>
-      <Terminal
-        name="Log"
-        colorMode={ColorMode.Light}
-        onInput={(terminalInput) =>
-          console.log(`New terminal input received: '${terminalInput}'`)
-        }
-      >
-        {terminalLineData}
+      <Terminal name="Log" colorMode={ColorMode.Light}>
+        <TerminalOutput>{WELCOME_TEXT}</TerminalOutput>
+        {log.map((item, idx) => (
+          <TerminalOutput key={"message" + idx}>{item}</TerminalOutput>
+        ))}
       </Terminal>
     </div>
   );
